@@ -8,13 +8,17 @@
 
 extern uint32 taskA_Stk[TASKA_STK_SIZE];
 extern uint32 taskB_Stk[TASKB_STK_SIZE];
+extern uint32 taskIdle_Stk[TASKB_STK_SIZE];
 
 extern struct xtos_task_struct taskA;
 extern struct xtos_task_struct taskB;
+extern struct xtos_task_struct taskIdle;
 
-void taskSwitch(void);	
+void OSTimeTick(void);
+void OSSched(void);	
 void taska(void);
 void taskb(void);
+void taskidle(void);
 
 #endif
 

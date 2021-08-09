@@ -1,11 +1,12 @@
-	EXTERN gp_xtos_cur_task
-	EXTERN gp_xtos_next_task
+	EXTERN OSTCBCurPtr
+	EXTERN OSTCBNextPtr
 
 	EXPORT OSStart
 	EXPORT OSContextSwitch
 	EXPORT OSPendSV_Handler
 	EXPORT OSLock
 	EXPORT OSUnlock
+	EXPORT CPU_CntLeadZeros
 		
 NVIC_INT_CTRL   EQU     0xE000ED04                              ; Interrupt control state register.
 NVIC_SYSPRI14   EQU     0xE000ED22                              ; System priority register (priority 14).
@@ -18,7 +19,11 @@ NVIC_PENDSVSET  EQU     0x10000000                              ; Value to trigg
     REQUIRE8
     PRESERVE8
 		
-		
+
+CPU_CntLeadZeros
+        CLZ     R0, R0                          ; Count leading zeros
+        BX      LR
+
 OSLock
   MRS     R0, PRIMASK         ; 保存中断屏蔽寄存器PRIMASK到R0中
   CPSID   I                   ; 关闭中断
@@ -64,13 +69,13 @@ OSPendSV_Handler
   SUBS    R0, R0, #0x20   ;将R0减去0x20后保存至R0
   STM     R0, {R4-R11}    ;将R4-R11保存至R0指向的堆栈,参数省略代表之后递增
 
-  LDR     R1, =gp_xtos_cur_task  ;OSTCBCurPtr是全局变量
+  LDR     R1, =OSTCBCurPtr  ;OSTCBCurPtr是全局变量
   LDR     R1, [R1]
   STR     R0, [R1]
 
 OSPendSVHandler_nosave
-  LDR   R0, =gp_xtos_cur_task   ; gp_xtos_cur_task = gp_xtos_next_task
-  LDR   R1, =gp_xtos_next_task
+  LDR   R0, =OSTCBCurPtr   ; gp_xtos_cur_task = gp_xtos_next_task
+  LDR   R1, =OSTCBNextPtr
   LDR   R2, [R1]
   STR   R2, [R0]
 

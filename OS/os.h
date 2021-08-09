@@ -11,48 +11,38 @@ typedef void(*xtos_task)(void);
  * xtos_task_struct - »ŒŒÒ√Ë ˆ∑˚
  */
 struct xtos_task_struct {
-    uint32 *pTopOfStack;   /* ’ª∂•µÿ÷∑ */
+  uint32 * stk;                /* Pointer to top of stack */
+  uint32   stkSize;            /* Size of stack */
+//  uint8    state;              /* State of Task */
+//  //uint32   pid;               /* ID of task */
+  uint32    prio;              /* Prio of task */
+//  uint32   tickRemain;         /* Number of ticks remaining */
+  uint32   ticks;             /* Total ticks to delay */
 };
+typedef struct xtos_task_struct OStcb;
 
-/*
-************************************************************************************************************************
-*                                         TASK LIST
-*
-* Description: Structure of tcb list
-************************************************************************************************************************
-*/
-
-#define MAX_TASK_NUM 64
-
-/*List node*/
-struct listItem {
-	uint32 itemValue; 					/*Help to sort in order*/
-	struct listItem * next;			/*Pointer to next item*/
-	struct listItem * previous;	/*Pointer to previous item*/
-	void * owner;								/*Pointer to a tcb struct who owns this list item*/
-	void * container;						/*Pointer to a list who owns this list item*/
+struct taskList 
+{
+	OStcb * tcb;
 };
-typedef struct listItem OSListItem;
-
-/*List root*/
-struct list {
-	uint32 num; 								/*Number of list items*/
-	struct listItem * index; 		/*Index of a list item*/
-	struct listItem * endItem; 	/*The last item of list*/
-};
-typedef struct list OSList;
+typedef struct taskList OSList;
+	
 
 
-extern struct xtos_task_struct *gp_xtos_cur_task;
-extern struct xtos_task_struct *gp_xtos_next_task;
+extern OSList rdyList[3];
+extern uint32 OSPrioTbl;
 
+extern OStcb *OSTCBCurPtr;
+extern OStcb *OSTCBNextPtr;
+
+extern uint32 CPU_CntLeadZeros(uint32 a);
 extern int OSLock(void);	/*From os_asm.asm*/
 extern void OSUnlock(int key);
 extern void OSStart(void);
 extern void OSContextSwitch(void);
 extern void OSPendSV_Handler(void);
 
-void OSCreateTask(struct xtos_task_struct *tcb, xtos_task task, uint32 *stk);
+void OSCreateTask(OStcb *tcb, xtos_task task, uint32 *stk);
 void OSDelay(uint32 ticks);
 void OSHistroyTask(void);
 
