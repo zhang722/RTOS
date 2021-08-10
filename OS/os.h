@@ -4,7 +4,7 @@
 #include "types.h"
 
 // xtos任务入口
-typedef void(*xtos_task)(void);
+typedef void(*ptask)(void);
 
 
 /*
@@ -41,9 +41,12 @@ extern void OSStart(void);
 extern void OSContextSwitch(void);
 extern void OSPendSV_Handler(void);
 
-void OSTaskStkInit(OStcb *tcb, xtos_task task, uint32 *stk);
+void OSTimeTick(void);
+void OSSched(void);	
+void OSTaskStkInit(OStcb *tcb, ptask task, uint32 *stk);
 void OSDelay(uint32 ticks);
 void OSHistroyTask(void);
+void OSTaskIdle(void);
 
 #endif
 

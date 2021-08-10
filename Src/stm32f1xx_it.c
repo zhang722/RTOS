@@ -23,7 +23,7 @@
 #include "stm32f1xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "tasks.h"
+#include "os.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

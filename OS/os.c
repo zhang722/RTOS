@@ -2,11 +2,31 @@
 #include "stm32f1xx_hal.h"
 #include "tasks.h"
 
+
+/**/
+#define MAX_PRIO 32
+#define IDLE_STK_SIZE 128
+OStcb OSIdleTaskTcb;
+__align(8) uint32 OSIdleStk[IDLE_STK_SIZE];
+
+void OSIdleInit(void)
+{
+	
+}
+
+/**/
+
+
+
+
+uint8 flag = 0;
+
 OStcb *OSTCBCurPtr;
 OStcb *OSTCBNextPtr;
 
 OSList rdyList[3];
-uint32 OSPrioTbl = (uint32)0 | (uint32)1<<31 |(uint32)1<<30 | (uint32)1<<29;
+uint32 OSPrioTbl = (uint32)0;
+//uint32 OSPrioTbl = (uint32)0 | (uint32)1<<31 |(uint32)1<<30 | (uint32)1<<29;
 
 
 /*
@@ -23,7 +43,7 @@ void xtos_distroy_task() {
  *  @task: 任务入口函数
  *  @stk: 任务栈顶
  */
-void OSTaskStkInit(OStcb * tcb, xtos_task task, uint32 * stk) {
+void OSTaskStkInit(OStcb * tcb, ptask task, uint32 * stk) {
     uint32  *pstk;
     pstk = stk;
     pstk = (uint32 *)((uint32)(pstk) & 0xFFFFFFF8uL);
@@ -64,4 +84,56 @@ void OSDelay(uint32 ticks) {
 	OSSched();											/* Exit critical */
 }
 
+
+void OSPrioInit(void)
+{
+	
+}
+
+
+/*
+ *  Called in Systick_handler. Decrease task ticks by one each time.
+ *  If a task is ready, change OSPrioTbl to prepare for switching.
+ */
+void OSTimeTick(void)
+{
+	int a = OSLock();
+	
+	for(int i = 0;i < 2;i++) {								/* Check all tasks */
+		if(rdyList[i].tcb->ticks > 0) {
+			rdyList[i].tcb->ticks --;
+		}
+		else if(rdyList[i].tcb->ticks == 0) {		/* If a task is ready */
+			OSPrioTbl |= rdyList[i].tcb->prio ;
+			flag = 1;															/* Tell IdleTask a task is ready */
+		}	
+	}
+	OSUnlock(a);
+}
+
+
+uint32 maxPrio;
+
+void OSSched(void) {
+	int primask = OSLock();
+	
+	maxPrio = CPU_CntLeadZeros(OSPrioTbl);	/* Get the highest priority */
+	maxPrio = maxPrio > 2 ? 2 : maxPrio;		/* Ensure the priority is within range */
+	OSTCBNextPtr = rdyList[maxPrio].tcb;		/* Find correct tcb */
+	OSUnlock(primask);
+	
+	if(OSTCBNextPtr == OSTCBCurPtr) {
+		return;
+	}	
+	OSContextSwitch();
+}
+
+void OSTaskIdle(void) {
+	while(1) {
+		if(flag == 1){	/* If a task is ready */
+			flag = 0;
+			OSSched(); 
+		}
+	}
+}
 

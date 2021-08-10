@@ -3,6 +3,8 @@
 
 #include "types.h"
 
+#define TASK_NUM 3 /* Modify it if tasks created or deleted */
+
 #define TASKA_STK_SIZE 1024
 #define TASKB_STK_SIZE 1024
 
@@ -14,11 +16,9 @@ extern struct tcb taskA;
 extern struct tcb taskB;
 extern struct tcb taskIdle;
 
-void OSTimeTick(void);
-void OSSched(void);	
 void taska(void);
 void taskb(void);
-void taskidle(void);
+
 
 #endif
 

@@ -5,84 +5,40 @@
 typedef unsigned long  uint32;
 typedef unsigned char  uint8;
 
-// #define Ready   1
-// #define Run     2
-// #define Suspend 3
+struct tcb {
+  uint32 * stk;                /* Pointer to top of stack */
+  uint32   stkSize;            /* Size of stack */
+  OSTcb *  next;
+  OSTcb *  privious;
+  uint8    state;              /* State of Task */
+  //uint32   pid;              /* ID of task */
+  uint32   prio;               /* Prio of task */
+  uint32   ticks;              /* Total ticks to delay */
+};
+typedef struct tcb OSTcb;
 
+struct tcbHead
+{
+  uint32 num;
+  OSTcb * next;
+  OSTcb * privious;
+};
+typedef struct tcbHead OSTcbHead;
 
-// struct tcb {
-//   uint32 * stk                /* Pointer to top of stack */
-//   uint32   stkSize            /* Size of stack */
-//   uint8    state              /* State of Task */
-//   //uint32   pid;               /* ID of task */
-//   uint32    prio;              /* Prio of task */
-//   uint32   tickRemain         /* Number of ticks remaining */
-//   uint32   ticks;             /* Total ticks to delay */
-// };
-// typedef struct tcb OSTcb;
+void OSTcbListInit(OSTcbHead * head)
+{
+  head->num = 0;
+  head->next = head;
+  head->privious = head;
+}
 
-// struct tcbRdyList
-// {
-//   OSTcb * tcb;  /* Pointer to tcb */
-// };
-
-
-// void OS_PrioInsert(uint32 prio)
-// {
-//   OSPrioTbl |= prio;
-// }
-
-// uint32 * OSTaskStkInit(void * task,
-//                        void * arg,
-//                        uint32 * stkBase,
-//                        uint32 * stkSize)
-// {
-//   uint32 * pstk = NULL;
-//   pstk = &stkBase[stkSize];
-//   pstk = (uint32 *)((uint32)(pstk) & 0xFFFFFFF8uL);
-
-//   *(--pstk) = (uint32)0x01000000uL; // xPSR
-//   *(--pstk) = (uint32)task;         // Entry Point
-//   *(--pstk) = (uint32)xtos_distroy_task; // R14 (LR)
-//   *(--pstk) = (uint32)0x12121212uL; // R12
-//   *(--pstk) = (uint32)0x03030303uL; // R3
-//   *(--pstk) = (uint32)0x02020202uL; // R2
-//   *(--pstk) = (uint32)0x01010101uL; // R1
-//   *(--pstk) = (uint32)0x00000000u;  // R0
-
-//   *(--pstk) = (uint32)0x11111111uL; // R11
-//   *(--pstk) = (uint32)0x10101010uL; // R10
-//   *(--pstk) = (uint32)0x09090909uL; // R9
-//   *(--pstk) = (uint32)0x08080808uL; // R8
-//   *(--pstk) = (uint32)0x07070707uL; // R7
-//   *(--pstk) = (uint32)0x06060606uL; // R6
-//   *(--pstk) = (uint32)0x05050505uL; // R5
-//   *(--pstk) = (uint32)0x04040404uL; // R4
-
-//   return pstk;
-// }
-
-// void OSTaskCreate(OSTcb * tcb, 
-//                   void * task,
-//                   void * arg,
-//                   uint32 prio,
-//                   uint32 * stkBase,
-//                   uint32 stkSize) 
-// {
-//   uint32 * psp = NULL;
-//   psp = OSTaskStkInit(task,
-//                        arg,
-//                        stkBase,
-//                        stkSize);
-//   tcb->stk = psp;
-//   tcb->stkSize = stkSize; 
-//   tcb->prio = prio;
-//   tcb->state = Ready;
-//   OS_CRITICAL_ENTER();
-//   OS_PrioInsert(prio);
-//   OS_CRITICAL_EXIT();
+void OSCreateTask(uint32 * stk,
+  uint32 stkSize,
+  uint32 prio)
+{
   
-// }
+}
+
 
 void printf_bin(int num)
 {
@@ -103,6 +59,9 @@ void printf_bin(int num)
     }
     printf("\r\n");
 }
+
+
+
 
 
 int main(int argc, char const *argv[])

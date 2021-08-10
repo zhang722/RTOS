@@ -99,7 +99,7 @@ int main(void)
 
 	OSTaskStkInit(&taskA, taska, &taskA_Stk[TASKA_STK_SIZE - 1]);	
   OSTaskStkInit(&taskB, taskb, &taskB_Stk[TASKB_STK_SIZE - 1]);
-	OSTaskStkInit(&taskIdle, taskidle, &taskIdle_Stk[TASKB_STK_SIZE - 1]);
+	OSTaskStkInit(&taskIdle, OSTaskIdle, &taskIdle_Stk[TASKB_STK_SIZE - 1]);
 	
 	rdyList[0].tcb = &taskA;
 	rdyList[1].tcb = &taskB;
