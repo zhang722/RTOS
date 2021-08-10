@@ -8,7 +8,7 @@ typedef signed int              int32;
 
 typedef signed char const       cint8;
 typedef signed short const      cint16;
-typedef signed long const       cint32;
+typedef signed int const        cint32;
 
 typedef unsigned char           uint8;
 typedef unsigned short          uint16;

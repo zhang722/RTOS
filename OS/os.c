@@ -17,13 +17,13 @@ void xtos_distroy_task() {
     while(1){}
 }
 /*
- * xtos_create_task - 创建一个任务，初始化任务栈空间
+ *  Init task stack when create a task
  *
- * @tcb: 任务描述符
- * @task: 任务入口函数
- * @stk: 任务栈顶
+ *  @tcb: 任务描述符
+ *  @task: 任务入口函数
+ *  @stk: 任务栈顶
  */
-void OSCreateTask(OStcb * tcb, xtos_task task, uint32 * stk) {
+void OSTaskStkInit(OStcb * tcb, xtos_task task, uint32 * stk) {
     uint32  *pstk;
     pstk = stk;
     pstk = (uint32 *)((uint32)(pstk) & 0xFFFFFFF8uL);
@@ -52,14 +52,16 @@ void OSCreateTask(OStcb * tcb, xtos_task task, uint32 * stk) {
 
 
 /*
-OS_time
-*/
+ *  Delay function causes a task switch 
+ */
 void OSDelay(uint32 ticks) {
-	int a = OSLock();
+	int a = OSLock();								/* Enter critical */
+	
 	OSTCBCurPtr->ticks = ticks;
-	OSPrioTbl ^= OSTCBCurPtr->prio;
+	OSPrioTbl ^= OSTCBCurPtr->prio;	/* Remove from the ready list */
 	OSUnlock(a);
-	OSSched();
+	
+	OSSched();											/* Exit critical */
 }
 
 

@@ -97,9 +97,9 @@ int main(void)
 //	OLED_Init();			/*initialize OLED*/  
 //	OLED_Clear();
 
-	OSCreateTask(&taskA, taska, &taskA_Stk[TASKA_STK_SIZE - 1]);	
-  OSCreateTask(&taskB, taskb, &taskB_Stk[TASKB_STK_SIZE - 1]);
-	OSCreateTask(&taskIdle, taskidle, &taskIdle_Stk[TASKB_STK_SIZE - 1]);
+	OSTaskStkInit(&taskA, taska, &taskA_Stk[TASKA_STK_SIZE - 1]);	
+  OSTaskStkInit(&taskB, taskb, &taskB_Stk[TASKB_STK_SIZE - 1]);
+	OSTaskStkInit(&taskIdle, taskidle, &taskIdle_Stk[TASKB_STK_SIZE - 1]);
 	
 	rdyList[0].tcb = &taskA;
 	rdyList[1].tcb = &taskB;
@@ -109,8 +109,8 @@ int main(void)
   OSTCBNextPtr = &taskA;
 
 	
-	/*systick circle 100ms*/
-	SysTick_Config(7200000);	/*默认时钟源AHB,产生异常请求,立即使能*/
+	/*systick circle 1ms*/
+	SysTick_Config(72000);	/*默认时钟源AHB,产生异常请求,立即使能*/
 	
   OSStart();
   /* USER CODE END 2 */
