@@ -103,7 +103,7 @@ int main(void)
 	
 	rdyList[0].tcb = &taskA;
 	rdyList[1].tcb = &taskB;
-	rdyList[2].tcb = &taskIdle;
+	rdyList[31].tcb = &taskIdle;
 	
 	OSTCBCurPtr = &taskA;
   OSTCBNextPtr = &taskA;

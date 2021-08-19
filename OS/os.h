@@ -28,7 +28,7 @@ typedef struct taskList OSList;
 	
 
 
-extern OSList rdyList[3];
+extern OSList rdyList[32];
 extern uint32 OSPrioTbl;
 
 extern OStcb *OSTCBCurPtr;

@@ -3,28 +3,13 @@
 #include "tasks.h"
 
 
-/**/
-#define MAX_PRIO 32
-#define IDLE_STK_SIZE 128
-OStcb OSIdleTaskTcb;
-__align(8) uint32 OSIdleStk[IDLE_STK_SIZE];
-
-void OSIdleInit(void)
-{
-	
-}
-
-/**/
-
-
-
-
 uint8 flag = 0;
 
 OStcb *OSTCBCurPtr;
 OStcb *OSTCBNextPtr;
 
-OSList rdyList[3];
+OSList rdyList[32];
+
 uint32 OSPrioTbl = (uint32)0;
 //uint32 OSPrioTbl = (uint32)0 | (uint32)1<<31 |(uint32)1<<30 | (uint32)1<<29;
 
@@ -93,7 +78,8 @@ void OSPrioInit(void)
 
 /*
  *  Called in Systick_handler. Decrease task ticks by one each time.
- *  If a task is ready, change OSPrioTbl to prepare for switching.
+ *  If a task is ready, this function changes OSPrioTbl to prepare 
+ *  for switching.
  */
 void OSTimeTick(void)
 {
@@ -118,7 +104,7 @@ void OSSched(void) {
 	int primask = OSLock();
 	
 	maxPrio = CPU_CntLeadZeros(OSPrioTbl);	/* Get the highest priority */
-	maxPrio = maxPrio > 2 ? 2 : maxPrio;		/* Ensure the priority is within range */
+	maxPrio = maxPrio > 31 ? 31 : maxPrio;		/* Ensure the priority is within range */
 	OSTCBNextPtr = rdyList[maxPrio].tcb;		/* Find correct tcb */
 	OSUnlock(primask);
 	

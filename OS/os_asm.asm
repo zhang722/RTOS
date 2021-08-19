@@ -92,7 +92,6 @@ OSPendSVHandler_nosave
 
   CPSIE I   ; 开中断
   BX    LR
-
-
-
+  NOP
   END
+	  
