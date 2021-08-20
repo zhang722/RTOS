@@ -24,6 +24,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "os.h"
+#include "oled.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -175,18 +176,21 @@ void DebugMon_Handler(void)
 
 //  /* USER CODE END PendSV_IRQn 1 */
 //}
-
+extern u8 OSRunning;
 /**
   * @brief This function handles System tick timer.
   */
 void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
-		
+	int a = OSLock();
   /* USER CODE END SysTick_IRQn 0 */
   HAL_IncTick();
   /* USER CODE BEGIN SysTick_IRQn 1 */
-	OSTimeTick();
+	//if(OSRunning) {
+		OSTimeTick();
+	//}
+	OSUnlock(a);
   /* USER CODE END SysTick_IRQn 1 */
 }
 

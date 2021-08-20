@@ -50,7 +50,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+u8 OSRunning = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -94,16 +94,16 @@ int main(void)
   MX_GPIO_Init();
   /* USER CODE BEGIN 2 */
 	
-//	OLED_Init();			/*initialize OLED*/  
-//	OLED_Clear();
+	OLED_Init();			/*initialize OLED*/  
+	OLED_Clear();
+	u8 str[3]  = "abc";
+	OLED_ShowString(0,0,&str[0]);
 
 	OSTaskStkInit(&taskA, taska, &taskA_Stk[TASKA_STK_SIZE - 1]);	
   OSTaskStkInit(&taskB, taskb, &taskB_Stk[TASKB_STK_SIZE - 1]);
 	OSTaskStkInit(&taskIdle, OSTaskIdle, &taskIdle_Stk[TASKB_STK_SIZE - 1]);
 	
-	rdyList[0].tcb = &taskA;
-	rdyList[1].tcb = &taskB;
-	rdyList[31].tcb = &taskIdle;
+	OSTaskListInit();
 	
 	OSTCBCurPtr = &taskA;
   OSTCBNextPtr = &taskA;
@@ -111,7 +111,7 @@ int main(void)
 	
 	/*systick circle 1ms*/
 	SysTick_Config(72000);	/*默认时钟源AHB,产生异常请求,立即使能*/
-	
+	OSRunning = 1;
   OSStart();
   /* USER CODE END 2 */
 

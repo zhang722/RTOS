@@ -123,3 +123,10 @@ void OSTaskIdle(void) {
 	}
 }
 
+
+void OSTaskListInit(void) {
+	rdyList[0].tcb = &taskA;
+	rdyList[1].tcb = &taskB;
+	rdyList[31].tcb = &taskIdle;
+}
+

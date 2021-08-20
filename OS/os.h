@@ -47,6 +47,7 @@ void OSTaskStkInit(OStcb *tcb, ptask task, uint32 *stk);
 void OSDelay(uint32 ticks);
 void OSHistroyTask(void);
 void OSTaskIdle(void);
+void OSTaskListInit(void);
 
 #endif
 
