@@ -10,8 +10,8 @@ OStcb *OSTCBNextPtr;
 
 OSList rdyList[32];
 
-uint32 OSPrioTbl = (uint32)0;
-//uint32 OSPrioTbl = (uint32)0 | (uint32)1<<31 |(uint32)1<<30 | (uint32)1<<29;
+//uint32 OSPrioTbl = (uint32)0;
+uint32 OSPrioTbl = (uint32)0 | (uint32)1<<31 |(uint32)1<<30 | (uint32)1<<29;
 
 
 /*
@@ -85,7 +85,7 @@ void OSTimeTick(void)
 {
 	int a = OSLock();
 	
-	for(int i = 0;i < 2;i++) {								/* Check all tasks */
+	for(int i = 0;i < 3;i++) {								/* Check all tasks */
 		if(rdyList[i].tcb->ticks > 0) {
 			rdyList[i].tcb->ticks --;
 		}
@@ -97,13 +97,10 @@ void OSTimeTick(void)
 	OSUnlock(a);
 }
 
-
-uint32 maxPrio;
-
 void OSSched(void) {
 	int primask = OSLock();
 	
-	maxPrio = CPU_CntLeadZeros(OSPrioTbl);	/* Get the highest priority */
+	uint32 maxPrio = CPU_CntLeadZeros(OSPrioTbl);	/* Get the highest priority */
 	maxPrio = maxPrio > 31 ? 31 : maxPrio;		/* Ensure the priority is within range */
 	OSTCBNextPtr = rdyList[maxPrio].tcb;		/* Find correct tcb */
 	OSUnlock(primask);
@@ -127,6 +124,7 @@ void OSTaskIdle(void) {
 void OSTaskListInit(void) {
 	rdyList[0].tcb = &taskA;
 	rdyList[1].tcb = &taskB;
+	rdyList[2].tcb = &taskC;
 	rdyList[31].tcb = &taskIdle;
 }
 

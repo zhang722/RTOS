@@ -10,15 +10,17 @@
 
 extern uint32 taskA_Stk[TASKA_STK_SIZE];
 extern uint32 taskB_Stk[TASKB_STK_SIZE];
+extern uint32 taskC_Stk[TASKB_STK_SIZE];
 extern uint32 taskIdle_Stk[TASKB_STK_SIZE];
 
 extern struct tcb taskA;
 extern struct tcb taskB;
+extern struct tcb taskC;
 extern struct tcb taskIdle;
 
 void taska(void);
 void taskb(void);
-
+void taskc(void);
 
 #endif
 

@@ -50,7 +50,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-u8 OSRunning = 0;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -85,9 +85,9 @@ int main(void)
 
   /* Configure the system clock */
   SystemClock_Config();
-
+	
   /* USER CODE BEGIN SysInit */
-
+	SysTick->CTRL  = 0x00;    			/* Important! Disable the systick and systick_handler */  
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -96,11 +96,10 @@ int main(void)
 	
 	OLED_Init();			/*initialize OLED*/  
 	OLED_Clear();
-	u8 str[3]  = "abc";
-	OLED_ShowString(0,0,&str[0]);
 
 	OSTaskStkInit(&taskA, taska, &taskA_Stk[TASKA_STK_SIZE - 1]);	
   OSTaskStkInit(&taskB, taskb, &taskB_Stk[TASKB_STK_SIZE - 1]);
+  OSTaskStkInit(&taskC, taskc, &taskC_Stk[TASKB_STK_SIZE - 1]);
 	OSTaskStkInit(&taskIdle, OSTaskIdle, &taskIdle_Stk[TASKB_STK_SIZE - 1]);
 	
 	OSTaskListInit();
@@ -111,7 +110,7 @@ int main(void)
 	
 	/*systick circle 1ms*/
 	SysTick_Config(72000);	/*默认时钟源AHB,产生异常请求,立即使能*/
-	OSRunning = 1;
+
   OSStart();
   /* USER CODE END 2 */
 
