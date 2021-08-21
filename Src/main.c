@@ -97,17 +97,8 @@ int main(void)
 	OLED_Init();			/*initialize OLED*/  
 	OLED_Clear();
 
-	OSTaskStkInit(&taskA, taska, &taskA_Stk[TASKA_STK_SIZE - 1]);	
-  OSTaskStkInit(&taskB, taskb, &taskB_Stk[TASKB_STK_SIZE - 1]);
-  OSTaskStkInit(&taskC, taskc, &taskC_Stk[TASKB_STK_SIZE - 1]);
-	OSTaskStkInit(&taskIdle, OSTaskIdle, &taskIdle_Stk[TASKB_STK_SIZE - 1]);
-	
-	OSTaskListInit();
-	
-	OSTCBCurPtr = &taskA;
-  OSTCBNextPtr = &taskA;
 
-	
+	OSInit();
 	/*systick circle 1ms*/
 	SysTick_Config(72000);	/*默认时钟源AHB,产生异常请求,立即使能*/
 

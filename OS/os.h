@@ -3,33 +3,12 @@
 
 #include "types.h"
 
-// xtos任务入口
+#define MAX_TASK_NUM 32		/* Max number of tasks */
+#define MAX_PRIO (MAX_TASK_NUM-1)
+#define IDLE_SIZE 256
+
 typedef void(*ptask)(void);
 
-
-/*
- * Task control block(TCB)
- */
-struct tcb {
-  uint32 * stk;                /* Pointer to top of stack */
-  uint32   stkSize;            /* Size of stack */
-  uint8    state;              /* State of Task */
-  //uint32   pid;               /* ID of task */
-  uint32    prio;              /* Prio of task */
-  uint32   ticks;              /* Total ticks to delay */
-};
-typedef struct tcb OStcb;
-
-struct taskList 
-{
-	OStcb * tcb;
-};
-typedef struct taskList OSList;
-	
-
-
-extern OSList rdyList[32];
-extern uint32 OSPrioTbl;
 
 extern OStcb *OSTCBCurPtr;
 extern OStcb *OSTCBNextPtr;
@@ -42,12 +21,12 @@ extern void OSContextSwitch(void);
 extern void OSPendSV_Handler(void);
 
 void OSTimeTick(void);
-void OSSched(void);	
+static void OSSched(void);	
 void OSTaskStkInit(OStcb *tcb, ptask task, uint32 *stk);
 void OSDelay(uint32 ticks);
-void OSHistroyTask(void);
 void OSTaskIdle(void);
-void OSTaskListInit(void);
+void OSInit(void);
+static void OSIdleInit(void);
 
 #endif
 

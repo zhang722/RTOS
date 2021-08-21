@@ -3,24 +3,52 @@
 
 #include "types.h"
 
-#define TASK_NUM 3 /* Modify it if tasks created or deleted */
+/***********************************************
+ *
+ *  You should change the following four places:
+ *  SIZE: 					the stack size of task
+ *  PRIO: 					the prio of task 
+ *  DECLARE_A_TASK: declare stack of task
+ *  DECLARE_TCB: 		declare tcb of task
+ *
+***********************************************/
+#define taska_SIZE 256
+#define taskb_SIZE 256
+#define taskc_SIZE 256
 
-#define TASKA_STK_SIZE 1024
-#define TASKB_STK_SIZE 1024
+#define taska_PRIO 0
+#define taskb_PRIO 1
+#define taskc_PRIO 2
 
-extern uint32 taskA_Stk[TASKA_STK_SIZE];
-extern uint32 taskB_Stk[TASKB_STK_SIZE];
-extern uint32 taskC_Stk[TASKB_STK_SIZE];
-extern uint32 taskIdle_Stk[TASKB_STK_SIZE];
+#define DECLARE_TASKS()\
+DECLARE_A_TASK(taska);\
+DECLARE_A_TASK(taskb);\
+DECLARE_A_TASK(taskc);
 
-extern struct tcb taskA;
-extern struct tcb taskB;
-extern struct tcb taskC;
-extern struct tcb taskIdle;
+#define DECLARE_TCBS()\
+DECLARE_TCB(taska),\
+DECLARE_TCB(taskb),\
+DECLARE_TCB(taskc)
 
-void taska(void);
-void taskb(void);
-void taskc(void);
+/**********************************************/
+
+
+
+
+/**********************************************
+ *  Do not change the following code
+**********************************************/
+#define DECLARE_TCB(NAME)\
+{.stk = &NAME##_STK[NAME##_SIZE - 1], .task = NAME, .stkSize = NAME##_SIZE, .prio = NAME##_PRIO}
+
+
+#define DECLARE_A_TASK(NAME)\
+__align(8) uint32 NAME##_STK[NAME##_SIZE];\
+extern uint32 NAME##_STK[NAME##_SIZE];\
+void NAME(void)
+
+extern OStcb tasks[];
+extern const int TASK_NUM;
 
 #endif
 

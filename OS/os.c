@@ -3,21 +3,23 @@
 #include "tasks.h"
 
 
-uint8 flag = 0;
+uint8 taskReady = 0;	/* Flag shows if a task is ready */
 
-OStcb *OSTCBCurPtr;
-OStcb *OSTCBNextPtr;
+OStcb *OSTCBCurPtr;	/* Pointer to current tcb */
+OStcb *OSTCBNextPtr; /* Pointer to highest prio ready tcb */
 
-OSList rdyList[32];
+OSList rdyList[MAX_TASK_NUM]; 
+uint32 OSPrioTbl = (uint32)0;
 
-//uint32 OSPrioTbl = (uint32)0;
-uint32 OSPrioTbl = (uint32)0 | (uint32)1<<31 |(uint32)1<<30 | (uint32)1<<29;
+
+uint32 taskIdleStk[IDLE_SIZE]; /* Defination of idle task */
+OStcb taskIdle = {.prio = (uint32)1};
 
 
 /*
- * xtos_task_finished - 任务结束后的回调函数
+ * 任务结束后的回调函数
  */
-void xtos_distroy_task() {
+void OSDistroyTask() {
     // to do...
     while(1){}
 }
@@ -36,7 +38,7 @@ void OSTaskStkInit(OStcb * tcb, ptask task, uint32 * stk) {
 
     *(--pstk) = (uint32)0x01000000uL; // xPSR
     *(--pstk) = (uint32)task;         // Entry Point
-    *(--pstk) = (uint32)xtos_distroy_task; // R14 (LR)
+    *(--pstk) = (uint32)OSDistroyTask; // R14 (LR)
     *(--pstk) = (uint32)0x12121212uL; // R12
     *(--pstk) = (uint32)0x03030303uL; // R3
     *(--pstk) = (uint32)0x02020202uL; // R2
@@ -70,11 +72,6 @@ void OSDelay(uint32 ticks) {
 }
 
 
-void OSPrioInit(void)
-{
-	
-}
-
 
 /*
  *  Called in Systick_handler. Decrease task ticks by one each time.
@@ -85,23 +82,23 @@ void OSTimeTick(void)
 {
 	int a = OSLock();
 	
-	for(int i = 0;i < 3;i++) {								/* Check all tasks */
+	for(int i = 0;i < TASK_NUM;i++) {								/* Check all tasks */
 		if(rdyList[i].tcb->ticks > 0) {
 			rdyList[i].tcb->ticks --;
 		}
 		else if(rdyList[i].tcb->ticks == 0) {		/* If a task is ready */
 			OSPrioTbl |= rdyList[i].tcb->prio ;
-			flag = 1;															/* Tell IdleTask a task is ready */
+			taskReady = 1;															/* Tell IdleTask a task is ready */
 		}	
 	}
 	OSUnlock(a);
 }
 
-void OSSched(void) {
+static void OSSched(void) {
 	int primask = OSLock();
 	
 	uint32 maxPrio = CPU_CntLeadZeros(OSPrioTbl);	/* Get the highest priority */
-	maxPrio = maxPrio > 31 ? 31 : maxPrio;		/* Ensure the priority is within range */
+	maxPrio = maxPrio > MAX_TASK_NUM-1 ? MAX_TASK_NUM-1 : maxPrio;		/* Ensure the priority is within range */
 	OSTCBNextPtr = rdyList[maxPrio].tcb;		/* Find correct tcb */
 	OSUnlock(primask);
 	
@@ -113,18 +110,30 @@ void OSSched(void) {
 
 void OSTaskIdle(void) {
 	while(1) {
-		if(flag == 1){	/* If a task is ready */
-			flag = 0;
+		if(taskReady == 1){	/* If a task is ready */
+			taskReady = 0;
 			OSSched(); 
 		}
 	}
 }
 
 
-void OSTaskListInit(void) {
-	rdyList[0].tcb = &taskA;
-	rdyList[1].tcb = &taskB;
-	rdyList[2].tcb = &taskC;
-	rdyList[31].tcb = &taskIdle;
+void OSInit(void) {
+	for(int i = 0;i < TASK_NUM;i++) {
+		tasks[i].prio = (uint32)1<<(MAX_PRIO-tasks[i].prio);
+		OSPrioTbl |= tasks[i].prio;
+		rdyList[i].tcb = &tasks[i];
+		OSTaskStkInit(&tasks[i],tasks[i].task,tasks[i].stk);
+	}
+	OSIdleInit();
+	
+	OSTCBCurPtr = rdyList[0].tcb;
+  OSTCBNextPtr = rdyList[0].tcb;
+}
+
+
+static void OSIdleInit(void) {
+	rdyList[MAX_PRIO].tcb = &taskIdle;
+	OSTaskStkInit(&taskIdle, OSTaskIdle, &taskIdleStk[IDLE_SIZE - 1]);
 }
 
