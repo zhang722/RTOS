@@ -5,19 +5,19 @@
 
 uint8 taskReady = 0;	/* Flag shows if a task is ready */
 
-OStcb *OSTCBCurPtr;	/* Pointer to current tcb */
-OStcb *OSTCBNextPtr; /* Pointer to highest prio ready tcb */
+OSTcb *OSTCBCurPtr;	/* Pointer to current tcb */
+OSTcb *OSTCBNextPtr; /* Pointer to highest prio ready tcb */
 
-OSList rdyList[MAX_TASK_NUM]; 
-uint32 OSPrioTbl = (uint32)0;
+OSList OSRdyList[MAX_TASK_NUM]; 
+uint32 OSPrioTbl = (uint32)0; /* Initialize to 0 */
 
 
-uint32 taskIdleStk[IDLE_SIZE]; /* Defination of idle task */
-OStcb taskIdle = {.prio = (uint32)1};
+uint32 taskIdle_STK[IDLE_SIZE]; /* Defination of idle task */
+OSTcb taskIdle = {.prio = (uint32)1}; /* Lowest prio */
 
 
 /*
- * 任务结束后的回调函数
+ * Callback to distory task
  */
 void OSDistroyTask() {
     // to do...
@@ -30,7 +30,7 @@ void OSDistroyTask() {
  *  @task: 任务入口函数
  *  @stk: 任务栈顶
  */
-void OSTaskStkInit(OStcb * tcb, ptask task, uint32 * stk) {
+void OSTaskStkInit(OSTcb * tcb, ptask task, uint32 * stk) {
     uint32  *pstk;
     pstk = stk;
     pstk = (uint32 *)((uint32)(pstk) & 0xFFFFFFF8uL);
@@ -62,13 +62,13 @@ void OSTaskStkInit(OStcb * tcb, ptask task, uint32 * stk) {
  *  Delay function causes a task switch 
  */
 void OSDelay(uint32 ticks) {
-	int a = OSLock();								/* Enter critical */
+	int a = OSLock();								/* Enter critical	 						*/
 	
 	OSTCBCurPtr->ticks = ticks;
-	OSPrioTbl ^= OSTCBCurPtr->prio;	/* Remove from the ready list */
+	OSPrioRemove(OSTCBCurPtr->prio);
 	OSUnlock(a);
 	
-	OSSched();											/* Exit critical */
+	OSSched();											/* Exit critical    					*/
 }
 
 
@@ -82,24 +82,49 @@ void OSTimeTick(void)
 {
 	int a = OSLock();
 	
-	for(int i = 0;i < TASK_NUM;i++) {								/* Check all tasks */
-		if(rdyList[i].tcb->ticks > 0) {
-			rdyList[i].tcb->ticks --;
+	for(int i = 0;i < TASK_NUM;i++) {								/* Check all tasks 						 	 */
+		if(OSRdyList[i].tcb->ticks > 0) {
+			OSRdyList[i].tcb->ticks --;
 		}
-		else if(rdyList[i].tcb->ticks == 0) {		/* If a task is ready */
-			OSPrioTbl |= rdyList[i].tcb->prio ;
+		else if(OSRdyList[i].tcb->ticks == 0) {				/* If a task is ready 					 */
+			OSPrioTbl |= OSRdyList[i].tcb->prio ;
 			taskReady = 1;															/* Tell IdleTask a task is ready */
 		}	
 	}
 	OSUnlock(a);
 }
 
+
+inline static uint32 OSPrioToBigEnd(uint32 prio) {
+	return (uint32)1<<(MAX_PRIO-prio); /* Convert prio to BigEnd */
+}
+
+inline static void OSPrioInsert(uint32 prio) {
+	OSPrioTbl |= prio;
+}
+
+/*
+*  Note: Prio is BigEnd already 
+ */
+inline static void OSPrioRemove(uint32 prio) {
+	OSPrioTbl &= ~prio;								 /* Remove from the ready list */
+}
+
+
+
+static uint32 OSPrioGetHighest(void) {
+	uint32 maxPrio = CPU_CntLeadZeros(OSPrioTbl);											/* Get the highest priority					 	 */
+	maxPrio = maxPrio > MAX_TASK_NUM-1 ? MAX_TASK_NUM-1 : maxPrio;		/* Ensure the priority is within range */
+	return maxPrio;
+}
+
+
 static void OSSched(void) {
 	int primask = OSLock();
 	
-	uint32 maxPrio = CPU_CntLeadZeros(OSPrioTbl);	/* Get the highest priority */
-	maxPrio = maxPrio > MAX_TASK_NUM-1 ? MAX_TASK_NUM-1 : maxPrio;		/* Ensure the priority is within range */
-	OSTCBNextPtr = rdyList[maxPrio].tcb;		/* Find correct tcb */
+	uint32 maxPrio = OSPrioGetHighest();
+	OSTCBNextPtr = OSRdyList[maxPrio].tcb;														/* Find correct tcb 									 */
+	
 	OSUnlock(primask);
 	
 	if(OSTCBNextPtr == OSTCBCurPtr) {
@@ -121,19 +146,20 @@ void OSTaskIdle(void) {
 void OSInit(void) {
 	for(int i = 0;i < TASK_NUM;i++) {
 		tasks[i].prio = (uint32)1<<(MAX_PRIO-tasks[i].prio);
-		OSPrioTbl |= tasks[i].prio;
-		rdyList[i].tcb = &tasks[i];
+		//OSPrioTbl |= tasks[i].prio;
+		OSPrioInsert(tasks[i].prio);
+		OSRdyList[i].tcb = &tasks[i];
 		OSTaskStkInit(&tasks[i],tasks[i].task,tasks[i].stk);
 	}
 	OSIdleInit();
 	
-	OSTCBCurPtr = rdyList[0].tcb;
-  OSTCBNextPtr = rdyList[0].tcb;
+	OSTCBCurPtr = OSRdyList[0].tcb;
+  OSTCBNextPtr = OSRdyList[0].tcb;
 }
 
 
 static void OSIdleInit(void) {
-	rdyList[MAX_PRIO].tcb = &taskIdle;
-	OSTaskStkInit(&taskIdle, OSTaskIdle, &taskIdleStk[IDLE_SIZE - 1]);
+	OSRdyList[MAX_PRIO].tcb = &taskIdle;
+	OSTaskStkInit(&taskIdle, OSTaskIdle, &taskIdle_STK[IDLE_SIZE - 1]);
 }
 

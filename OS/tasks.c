@@ -7,9 +7,9 @@
 /***********************************************
  *  Do not change the following code
 ***********************************************/
-DECLARE_TASKS();	/* Declare and define stack of tasks */
-OStcb tasks[] = {DECLARE_TCBS()};	/* Define tcbs */
-const int TASK_NUM = sizeof(tasks)/sizeof(OStcb); /* Compute total number of tasks */
+DECLARE_TASKS();																	/* Declare and define stack of tasks */
+OSTcb tasks[] = {DECLARE_TCBS()};									/* Define tcbs 											 */
+const int TASK_NUM = sizeof(tasks)/sizeof(OSTcb); /* Compute total number of tasks 		 */
 /**********************************************/
 
 
@@ -46,6 +46,15 @@ void taskc(void) {
 		OLED_ShowString(20,0,"3");
 		OSDelay(1000);
 		OLED_ShowString(20,0,".");
+		OSDelay(1000);
+	}
+}
+
+void taskd(void) {
+	while(1) {
+		OLED_ShowString(30,0,"4");
+		OSDelay(1000);
+		OLED_ShowString(30,0,".");
 		OSDelay(1000);
 	}
 }

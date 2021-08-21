@@ -10,8 +10,8 @@
 typedef void(*ptask)(void);
 
 
-extern OStcb *OSTCBCurPtr;
-extern OStcb *OSTCBNextPtr;
+extern OSTcb *OSTCBCurPtr;
+extern OSTcb *OSTCBNextPtr;
 
 extern uint32 CPU_CntLeadZeros(uint32 a);	/*From os_asm.asm*/
 extern int OSLock(void);	
@@ -20,9 +20,13 @@ extern void OSStart(void);
 extern void OSContextSwitch(void);
 extern void OSPendSV_Handler(void);
 
+
 void OSTimeTick(void);
+static void OSPrioInsert(uint32 prio);
+static void OSPrioRemove(uint32 prio);
+static uint32 OSPrioGetHighest(void);
 static void OSSched(void);	
-void OSTaskStkInit(OStcb *tcb, ptask task, uint32 *stk);
+void OSTaskStkInit(OSTcb *tcb, ptask task, uint32 *stk);
 void OSDelay(uint32 ticks);
 void OSTaskIdle(void);
 void OSInit(void);

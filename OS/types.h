@@ -32,11 +32,11 @@ struct tcb {
   uint32   prio;               /* Prio of task */
   uint32   ticks;              /* Total ticks to delay */
 };
-typedef struct tcb OStcb;
+typedef struct tcb OSTcb;
 
 struct taskList 
 {
-  OStcb * tcb;
+  OSTcb * tcb;
 };
 typedef struct taskList OSList;
 
