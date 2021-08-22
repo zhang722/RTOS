@@ -160,7 +160,7 @@ void OSInit(void) {
 }
 
 
-static void OSIdleInit(void) {
+inline static void OSIdleInit(void) {
 	OSRdyList[MAX_PRIO].tcb = &taskIdle;
 	OSTaskStkInit(&taskIdle, OSTaskIdle, &taskIdle_STK[IDLE_SIZE - 1]);
 }

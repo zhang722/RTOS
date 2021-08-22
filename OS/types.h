@@ -20,6 +20,13 @@ typedef unsigned int const      ucint32;
 
 typedef void(*ptask)(void); 	 /* Pointer to task function */
 
+struct flag
+{
+	uint32 flag;
+};
+typedef struct flag OSFlag;
+
+
 /*
  * Task control block(TCB)
  */
@@ -30,6 +37,7 @@ struct tcb {
   uint8    state;              /* State of Task 					 */
   uint32   prio;               /* Prio of task 						 */
   uint32   ticks;              /* Total ticks to delay 		 */
+	OSFlag * pflag;							 /* Pointer to flag				   */
 };
 typedef struct tcb OSTcb;
 
