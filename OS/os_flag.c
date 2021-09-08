@@ -28,12 +28,12 @@ uint32 OSFlagPost(OSFlag * pflag, uint32 flag, uint32 opt)
 		flagRdy = (uint32)(pflag->flag & taskFlag);
 		if(opt == OS_FLAG_SET_ALL) {	/* If need to set all bits */
 			if(flagRdy == taskFlag) {
-				OSTCBCurPtr->state = OS_READY;	/* Ready to run */
+				tasks[i].state = OS_READY;	/* Ready to run */
 			}
 		}
 		else {	/* It is enough if any bit set*/
 			if(flagRdy != (uint32)0) {
-				OSTCBCurPtr->state = OS_READY;	/* Ready to run */
+				tasks[i].state = OS_READY;	/* Ready to run */
 			}
 		}
 	}
@@ -47,11 +47,9 @@ uint32 OSFlagPost(OSFlag * pflag, uint32 flag, uint32 opt)
 void OSFlagPend(OSFlag * pflag, uint32 flag, uint32 opt) 
 {
 	int a = OSLock();
-	uint32 f;
-	OSTCBCurPtr->pflag->flag = flag;	/* Save */
+	OSTCBCurPtr->pflag = pflag;	/* Save */
 	
-	f = pflag->flag & flag;
-	if(f == flag) {	/* Match flag */
+	if((pflag->flag & flag) == flag) {	/* Match flag */
 		if(opt == OS_FLAG_CONSUME) {
 			pflag->flag &= ~(OSTCBCurPtr->pflag->flag);
 		} 	

@@ -23,11 +23,13 @@ void taska(void) {
 	while(1) {
 		GPIOD->BSRR = (uint32_t)GPIO_PIN_2 << 16u;
 		OLED_ShowString(0,0,"1");
-		OSFlagPost(&test1_FLAG,0x01,OS_FLAG_SET_ALL);
+		
 		OSDelay(1000);
 		GPIOD->BSRR = GPIO_PIN_2;
 		OLED_ShowString(0,0,".");
+		
 		OSDelay(1000);
+		OSFlagPost(&test1_FLAG,0x01,OS_FLAG_SET_ALL);
 	}
 }
 
