@@ -8,7 +8,9 @@
 #define IDLE_SIZE 256								/* Default stack size of idle task 		 */
 
 #define OS_SUSPEND 0x00
-#define OS_READY   0x01
+#define OS_BLOCK	 0x01
+#define OS_READY   0x02
+
 
 typedef void(*ptask)(void);					/* Rename pointer to function to ptask */
 

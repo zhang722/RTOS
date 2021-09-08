@@ -1,3 +1,4 @@
+#include "os.h"
 #include "os_flag.h"
 
 extern int OSLock(void);	
@@ -16,24 +17,23 @@ void OSFlagCreate(OSFlag * pflag, uint32 flag)
 }
 
 
-
 uint32 OSFlagPost(OSFlag * pflag, uint32 flag, uint32 opt) 
 {
 	int a = OSLock();
 	uint32 flagRdy;
 	uint32 taskFlag;
 	pflag->flag |= flag;
-	for(int i = 0;i < TASK_NUM;i++) {
+	for(int i = 0;i < TASK_NUM;i++){
 		taskFlag = tasks[i].pflag->flag;
 		flagRdy = (uint32)(pflag->flag & taskFlag);
 		if(opt == OS_FLAG_SET_ALL) {	/* If need to set all bits */
 			if(flagRdy == taskFlag) {
-				/*这里让任务就绪或恢复*/
+				OSTCBCurPtr->state = OS_READY;	/* Ready to run */
 			}
 		}
-		else {												/* It is enough if any bit set*/
+		else {	/* It is enough if any bit set*/
 			if(flagRdy != (uint32)0) {
-				/*这里让任务就绪或恢复*/
+				OSTCBCurPtr->state = OS_READY;	/* Ready to run */
 			}
 		}
 	}
@@ -44,21 +44,24 @@ uint32 OSFlagPost(OSFlag * pflag, uint32 flag, uint32 opt)
 }
 
 
-void OSFlagPend(OSFlag * pflag, uint32 flag, uint32 opt) {
+void OSFlagPend(OSFlag * pflag, uint32 flag, uint32 opt) 
+{
 	int a = OSLock();
+	uint32 f;
+	OSTCBCurPtr->pflag->flag = flag;	/* Save */
 	
-	OSTCBCurPtr->pflag->flag = flag;
-	
-	if(opt == OS_FLAG_CONSUME_ALL) {
-		pflag->flag &= ~(OSTCBCurPtr->pflag->flag);
-	} 
-	else if(opt == OS_FLAG_CONSUME_ANY) {
+	f = pflag->flag & flag;
+	if(f == flag) {	/* Match flag */
+		if(opt == OS_FLAG_CONSUME) {
+			pflag->flag &= ~(OSTCBCurPtr->pflag->flag);
+		} 	
 		
-	} 
-	else {
-		
+		OSUnlock(a);
+		return;
+	} else {	/* Not match */
+		OSTCBCurPtr->state = OS_BLOCK;	/* Block task */
 	}
-	
+
 	OSUnlock(a);
 }
 

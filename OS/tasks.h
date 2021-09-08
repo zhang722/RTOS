@@ -1,6 +1,9 @@
 #ifndef TASKS_H
 #define TASKS_H
 
+
+#include "types.h"
+
 /***********************************************
  *
  *  You should change the following four places:
@@ -32,7 +35,10 @@ DECLARE_TCB(taskb),\
 DECLARE_TCB(taskc),\
 DECLARE_TCB(taskd)
 
+
 /**********************************************/
+
+
 
 #include "os_task.h"
 #endif
