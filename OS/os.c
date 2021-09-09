@@ -16,6 +16,7 @@ uint32 taskIdle_STK[IDLE_SIZE]; /* Defination of idle task */
 OSTcb taskIdle = {.prio = (uint32)1}; /* Lowest prio */
 
 
+
 /*
  * Callback to distory task
  */
@@ -108,7 +109,7 @@ inline static uint32 OSPrioToBigEnd(uint32 prio) {
 /*
  *  Insert a prio to prio table
  */
-inline static void OSPrioInsert(uint32 prio) {
+inline void OSPrioInsert(uint32 prio) {
 	OSPrioTbl |= prio;
 }
 
@@ -116,7 +117,7 @@ inline static void OSPrioInsert(uint32 prio) {
 /*
  *  Note: Prio is BigEnd already 
  */
-inline static void OSPrioRemove(uint32 prio) {
+inline void OSPrioRemove(uint32 prio) {
 	OSPrioTbl &= ~prio;								 /* Remove from the ready list */
 }
 
@@ -131,10 +132,11 @@ static uint32 OSPrioGetHighest(void) {
 /*
  *  Core function to schedual tasks
  */
-static void OSSched(void) {
+uint32 maxPrio;
+void OSSched(void) {
 	int primask = OSLock();
 	
-	uint32 maxPrio = OSPrioGetHighest();
+	maxPrio = OSPrioGetHighest();
 	OSTCBNextPtr = OSRdyList[maxPrio].tcb;														/* Find correct tcb 									 */
 	
 	OSUnlock(primask);

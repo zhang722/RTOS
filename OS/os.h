@@ -3,16 +3,20 @@
 
 #include "types.h"
 
-#define OS_TICK_HZ 10
+#define OS_TICK_HZ 100
 
 #define MAX_TASK_NUM 32							/* Max number of tasks 						 		 */
 #define MAX_PRIO (MAX_TASK_NUM-1)		/* Max prio 											 		 */
 #define IDLE_SIZE 256								/* Default stack size of idle task 		 */
 
-#define OS_SUSPEND 0x00
-#define OS_BLOCK	 0x01
-#define OS_READY   0x02
-
+//#define OS_SUSPEND 0x00
+//#define OS_BLOCK	 0x01
+//#define OS_READY   0x02
+enum{
+	OS_SUSPEND = 0,
+	OS_BLOCK,
+	OS_READY
+};
 
 typedef void(*ptask)(void);					/* Rename pointer to function to ptask */
 
@@ -29,13 +33,13 @@ extern void OSPendSV_Handler(void);
 
 
 /* ------------Functions operate prio------------- */																				
-static void OSPrioInsert(uint32 prio);		
-static void OSPrioRemove(uint32 prio);
+void OSPrioInsert(uint32 prio);		
+void OSPrioRemove(uint32 prio);
 static uint32 OSPrioGetHighest(void); 		
 
 
 /* ---------------Schedule tasks------------------ */	
-static void OSSched(void);								
+void OSSched(void);								
 
 
 /* -----------------Stack init-------------------- */	
