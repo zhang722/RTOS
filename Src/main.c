@@ -100,7 +100,7 @@ int main(void)
 
 	OSInit();
 	/*systick circle 1ms*/
-	SysTick_Config(72000);	/*默认时钟源AHB,产生异常请求,立即使能*/
+	SysTick_Config(72000000 / OS_TICK_HZ);	/*默认时钟源AHB,产生异常请求,立即使能*/
 
   OSStart();
   /* USER CODE END 2 */

@@ -89,10 +89,10 @@ void OSTimeTick(void)
 	if(OSTCBCurPtr == &taskIdle) {
 		notUsed++;
 	}
-	if(jiffies == 1000) {
-		useage = (1000-(float)notUsed) / (float)jiffies;
-		jiffies = 0;
-		notUsed = 0;
+	if(jiffies == OS_TICK_HZ) {
+		useage = (float)(OS_TICK_HZ-notUsed) / (float)jiffies;
+		jiffies = 0u;
+		notUsed = 0u;
 	}
 	
 	
@@ -110,18 +110,24 @@ void OSTimeTick(void)
 	OSUnlock(a);
 }
 
-
+/*
+ *  Convert prio to BigEnd
+ */
 inline static uint32 OSPrioToBigEnd(uint32 prio) {
 	return (uint32)1<<(MAX_PRIO-prio); /* Convert prio to BigEnd */
 }
 
+
+/*
+ *  Insert a prio to prio table
+ */
 inline static void OSPrioInsert(uint32 prio) {
 	OSPrioTbl |= prio;
 }
 
 
 /*
-*  Note: Prio is BigEnd already 
+ *  Note: Prio is BigEnd already 
  */
 inline static void OSPrioRemove(uint32 prio) {
 	OSPrioTbl &= ~prio;								 /* Remove from the ready list */
@@ -135,7 +141,9 @@ static uint32 OSPrioGetHighest(void) {
 }
 
 
-
+/*
+ *  Core function to schedual tasks
+ */
 static void OSSched(void) {
 	int primask = OSLock();
 	
@@ -151,6 +159,9 @@ static void OSSched(void) {
 }
 
 
+/*
+ *  Idle task defined by OS instead of user
+ */
 static void OSTaskIdle(void) {
 	while(1) {
 		if(taskReady == 1){	/* If a task is ready */
@@ -161,6 +172,43 @@ static void OSTaskIdle(void) {
 }
 
 
+/*
+ *  Idle task init
+ */
+inline static void OSIdleInit(void) {
+	OSRdyList[MAX_PRIO].tcb = &taskIdle;
+	OSTaskStkInit(&taskIdle, OSTaskIdle, &taskIdle_STK[IDLE_SIZE - 1]);
+}
+
+
+/*
+ *  Function to suspend a task
+ */
+void OSTaskSuspend(OSTcb * ptcb) {
+	int primask = OSLock();
+	
+	OSPrioRemove(ptcb->prio);
+	ptcb->state = OS_SUSPEND;
+	
+	OSUnlock(primask);
+}
+
+
+/*
+ *  Function to resume a suspended task
+ */
+void OSTaskResume(OSTcb * ptcb) {
+	int primask = OSLock();
+	
+	ptcb->state = OS_READY;
+	
+	OSUnlock(primask);
+}
+
+
+/*
+ *  Init all tasks, including idle task
+ */
 void OSInit(void) {
 	for(int i = 0;i < TASK_NUM;i++) {
 		tasks[i].prio = OSPrioToBigEnd(tasks[i].prio);
@@ -174,27 +222,3 @@ void OSInit(void) {
   OSTCBNextPtr = OSRdyList[0].tcb;
 }
 
-
-inline static void OSIdleInit(void) {
-	OSRdyList[MAX_PRIO].tcb = &taskIdle;
-	OSTaskStkInit(&taskIdle, OSTaskIdle, &taskIdle_STK[IDLE_SIZE - 1]);
-}
-
-
-void OSTaskSuspend(OSTcb * ptcb) {
-	int primask = OSLock();
-	
-	OSPrioRemove(ptcb->prio);
-	ptcb->state = OS_SUSPEND;
-	
-	OSUnlock(primask);
-}
-
-
-void OSTaskResume(OSTcb * ptcb) {
-	int primask = OSLock();
-	
-	ptcb->state = OS_READY;
-	
-	OSUnlock(primask);
-}
