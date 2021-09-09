@@ -1,7 +1,7 @@
 #ifndef OS_H
 #define OS_H
 
-#include "types.h"
+#include "os_types.h"
 
 #define OS_TICK_HZ 100
 
@@ -9,9 +9,6 @@
 #define MAX_PRIO (MAX_TASK_NUM-1)		/* Max prio 											 		 */
 #define IDLE_SIZE 256								/* Default stack size of idle task 		 */
 
-//#define OS_SUSPEND 0x00
-//#define OS_BLOCK	 0x01
-//#define OS_READY   0x02
 enum{
 	OS_SUSPEND = 0,
 	OS_BLOCK,

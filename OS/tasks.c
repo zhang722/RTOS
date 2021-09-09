@@ -5,18 +5,19 @@
 #include "os_flag.h"
 
 
-/***********************************************
+/***************************************************************************************
  *  Do not change the following code
-***********************************************/
+****************************************************************************************/
 DECLARE_TASKS();																	/* Declare and define stack of tasks */
 OSTcb tasks[] = {DECLARE_TCBS()};									/* Define tcbs 											 */
 const int TASK_NUM = sizeof(tasks)/sizeof(OSTcb); /* Compute total number of tasks 		 */
-/**********************************************/
+/***************************************************************************************/
 
 
-/***********************************************
+
+/***************************************************************************************
  *  Change the following code if needed
-***********************************************/
+****************************************************************************************/
 OSFlag test1_FLAG = {.flag = 0x00};
 OSFlag test2_FLAG = {.flag = 0x00};
 
@@ -49,13 +50,19 @@ void taska(void) {
 //		GPIOD->BSRR = GPIO_PIN_2;
 //		OLED_ShowString(0,0,".");
 //	
-		if(keyScan()!=0) {
+		if(keyScan()==1) {
 			OSFlagPost(&test1_FLAG,0x01,OS_FLAG_SET_ALL);
 		}		
 		if(test1_FLAG.flag == 0x00) {
 			OLED_ShowString(0,0,"0");
-		} else {
+		} else if(test1_FLAG.flag == 0x01)
+		{
 			OLED_ShowString(0,0,"1");
+		} else if(test1_FLAG.flag == 0x02)
+		{
+			OLED_ShowString(0,0,"2");
+		} else if(test1_FLAG.flag == 0x03) {
+			OLED_ShowString(0,0,"3");
 		}
 		OSDelay(10);
 	
@@ -65,7 +72,7 @@ void taska(void) {
 
 void taskb(void) {
 	while(1) {
-		OSFlagPend(&test1_FLAG,0x01,OS_FLAG_CONSUME);
+		OSFlagPend(&test1_FLAG,0x03,OS_FLAG_GET_CLR);
 //		GPIOA->BSRR = (uint32_t)GPIO_PIN_8 << 16u;
 		OLED_ShowString(10,0,"2");
 //		OSDelay(10);
@@ -79,10 +86,15 @@ void taskb(void) {
 
 void taskc(void) {
 	while(1) {
-		OLED_ShowString(20,0,"3");
-		OSDelay(100);
-		OLED_ShowString(20,0,".");
-		OSDelay(100);
+//		OLED_ShowString(20,0,"3");
+//		OSDelay(100);
+//		OLED_ShowString(20,0,".");
+//		OSDelay(100);
+		
+		if(keyScan()==2) {
+			OSFlagPost(&test1_FLAG,0x02,OS_FLAG_SET_ALL);	
+		}
+		OSDelay(10);		
 	}
 }
 

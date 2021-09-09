@@ -5,8 +5,8 @@
 
 uint8 taskReady = 0;	/* Flag shows if a task is ready */
 
-OSTcb *OSTCBCurPtr;	/* Pointer to current tcb */
-OSTcb *OSTCBNextPtr; /* Pointer to highest prio ready tcb */
+OSTcb *OSTCBCurPtr;		/* Pointer to current tcb */
+OSTcb *OSTCBNextPtr;  /* Pointer to highest prio ready tcb */
 
 OSList OSRdyList[MAX_TASK_NUM]; 
 uint32 OSPrioTbl = (uint32)0; /* Initialize to 0 */
@@ -15,6 +15,13 @@ uint32 OSPrioTbl = (uint32)0; /* Initialize to 0 */
 uint32 taskIdle_STK[IDLE_SIZE]; /* Defination of idle task */
 OSTcb taskIdle = {.prio = (uint32)1}; /* Lowest prio */
 
+/***********************************************
+ *  Do not change the following code
+***********************************************/
+DECLARE_TASKS();																	/* Declare and define stack of tasks */
+OSTcb tasks[] = {DECLARE_TCBS()};									/* Define tcbs 											 */
+const int TASK_NUM = sizeof(tasks)/sizeof(OSTcb); /* Compute total number of tasks 		 */
+/******************************/
 
 
 /*
