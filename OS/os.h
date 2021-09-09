@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-#define OS_TICK_HZ 1000
+#define OS_TICK_HZ 10
 
 #define MAX_TASK_NUM 32							/* Max number of tasks 						 		 */
 #define MAX_PRIO (MAX_TASK_NUM-1)		/* Max prio 											 		 */

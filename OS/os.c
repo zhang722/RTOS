@@ -15,9 +15,6 @@ uint32 OSPrioTbl = (uint32)0; /* Initialize to 0 */
 uint32 taskIdle_STK[IDLE_SIZE]; /* Defination of idle task */
 OSTcb taskIdle = {.prio = (uint32)1}; /* Lowest prio */
 
-uint32 jiffies = 0;	/* Var to statistics cpu utilization */
-uint32 notUsed = 0; 
-float useage = 0.f;
 
 /*
  * Callback to distory task
@@ -26,6 +23,8 @@ void OSDistroyTask(void) {
     // to do...
     while(1){}
 }
+
+
 /*
  *  Init task stack when create a task
  *
@@ -84,17 +83,6 @@ void OSDelay(uint32 ticks) {
 void OSTimeTick(void)
 {
 	int a = OSLock();
-
-	jiffies++;	/* Statistics CPU utilization */
-	if(OSTCBCurPtr == &taskIdle) {
-		notUsed++;
-	}
-	if(jiffies == OS_TICK_HZ) {
-		useage = (float)(OS_TICK_HZ-notUsed) / (float)jiffies;
-		jiffies = 0u;
-		notUsed = 0u;
-	}
-	
 	
 	for(int i = 0;i < TASK_NUM;i++) {								/* Check all tasks 						 	 */
 		if(OSRdyList[i].tcb->ticks > 0) {
@@ -103,7 +91,6 @@ void OSTimeTick(void)
 		else if(OSRdyList[i].tcb->ticks == 0 &&
 				    OSRdyList[i].tcb->state == OS_READY) {				/* If a task is ready 					 */
 			OSPrioTbl |= OSRdyList[i].tcb->prio ;
-			taskReady = 1;															/* Tell IdleTask a task is ready */
 		}	
 	}
 	
@@ -164,9 +151,8 @@ static void OSSched(void) {
  */
 static void OSTaskIdle(void) {
 	while(1) {
-		if(taskReady == 1){	/* If a task is ready */
-			taskReady = 0;
-			OSSched(); 
+		if(OSPrioTbl != 0) {	/* If a task is ready */
+			OSSched();
 		}
 	}
 }
@@ -207,7 +193,7 @@ void OSTaskResume(OSTcb * ptcb) {
 
 
 /*
- *  Init all tasks, including idle task
+ *  Init all tasks, including idle task. Init systick.
  */
 void OSInit(void) {
 	for(int i = 0;i < TASK_NUM;i++) {
@@ -220,5 +206,8 @@ void OSInit(void) {
 	OSIdleInit();
 	OSTCBCurPtr = OSRdyList[0].tcb;
   OSTCBNextPtr = OSRdyList[0].tcb;
+	
+	/*systick circle 1ms*/
+	SysTick_Config(72000000 / OS_TICK_HZ);	/*默认时钟源AHB,产生异常请求,立即使能*/
 }
 

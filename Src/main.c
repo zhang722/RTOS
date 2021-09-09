@@ -73,7 +73,6 @@ int main(void)
 
   /* USER CODE END 1 */
   
-
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
@@ -93,14 +92,10 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   /* USER CODE BEGIN 2 */
-	
 	OLED_Init();			/*initialize OLED*/  
 	OLED_Clear();
 
-
 	OSInit();
-	/*systick circle 1ms*/
-	SysTick_Config(72000000 / OS_TICK_HZ);	/*默认时钟源AHB,产生异常请求,立即使能*/
 
   OSStart();
   /* USER CODE END 2 */

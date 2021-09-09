@@ -35,7 +35,6 @@ DECLARE_TCB(taskb),\
 DECLARE_TCB(taskc),\
 DECLARE_TCB(taskd)
 
-
 /**********************************************/
 
 
