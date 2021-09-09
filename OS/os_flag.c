@@ -7,15 +7,6 @@ extern void OSUnlock(int key);
 extern OSTcb *OSTCBCurPtr;
 extern OSTcb *OSTCBNextPtr;
 
-void OSFlagCreate(OSFlag * pflag, uint32 flag) 
-{
-	int a = OSLock();
-	
-	pflag->flag = flag;
-	
-	OSUnlock(a);
-}
-
 
 uint32 OSFlagPost(OSFlag * pflag, uint32 flag, uint32 opt) 
 {

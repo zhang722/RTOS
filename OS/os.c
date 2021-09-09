@@ -15,11 +15,14 @@ uint32 OSPrioTbl = (uint32)0; /* Initialize to 0 */
 uint32 taskIdle_STK[IDLE_SIZE]; /* Defination of idle task */
 OSTcb taskIdle = {.prio = (uint32)1}; /* Lowest prio */
 
+uint32 jiffies = 0;	/* Var to statistics cpu utilization */
+uint32 notUsed = 0; 
+float useage = 0.f;
 
 /*
  * Callback to distory task
  */
-void OSDistroyTask() {
+void OSDistroyTask(void) {
     // to do...
     while(1){}
 }
@@ -81,6 +84,17 @@ void OSDelay(uint32 ticks) {
 void OSTimeTick(void)
 {
 	int a = OSLock();
+
+	jiffies++;	/* Statistics CPU utilization */
+	if(OSTCBCurPtr == &taskIdle) {
+		notUsed++;
+	}
+	if(jiffies == 1000) {
+		useage = (1000-(float)notUsed) / (float)jiffies;
+		jiffies = 0;
+		notUsed = 0;
+	}
+	
 	
 	for(int i = 0;i < TASK_NUM;i++) {								/* Check all tasks 						 	 */
 		if(OSRdyList[i].tcb->ticks > 0) {
@@ -92,6 +106,7 @@ void OSTimeTick(void)
 			taskReady = 1;															/* Tell IdleTask a task is ready */
 		}	
 	}
+	
 	OSUnlock(a);
 }
 

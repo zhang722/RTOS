@@ -13,7 +13,6 @@
 #define OS_FLAG_NO_CNSM  (uint32)0x04
 
 
-void OSFlagCreate(OSFlag * pflag, uint32 flag);
 uint32 OSFlagPost(OSFlag * pflag, uint32 flag, uint32 opt);
 void OSFlagPend(OSFlag * pflag, uint32 flag, uint32 opt);
 
