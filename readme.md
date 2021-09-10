@@ -3,6 +3,7 @@
 2. 在keil中将OS及其中文件添加到工程
 3. 将OS添加到Include Paths，使keil能找到os.h等头文件
 4. 将stm32f1xx_it.c中的PendSV_Handler函数的定义删除
+    （或者在PendSV_Handler前加上__weak关键字）
 5. 在main.c里引入os.h
 6. 在stm32f1xx_it.c中引入os.h
 7. 在SysTick_Handler函数的结尾处调用OSTimeTick()

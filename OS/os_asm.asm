@@ -3,7 +3,7 @@
 
 	EXPORT OSStart
 	EXPORT OSContextSwitch
-	EXPORT OSPendSV_Handler
+	EXPORT PendSV_Handler
 	EXPORT OSLock
 	EXPORT OSUnlock
 	EXPORT CPU_CntLeadZeros
@@ -55,7 +55,7 @@ OSContextSwitch
 	BX      LR
 
 
-OSPendSV_Handler
+PendSV_Handler
 	CPSID I         ;关中断
 	MRS   R0, PSP   ;将PSP协寄存器移动到R0
 	CBZ   R0, OSPendSVHandler_nosave    ;判断并分支，若R0=0，则说明是第一次切换，跳转到相应函数
