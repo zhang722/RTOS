@@ -8,7 +8,7 @@
 /***************************************************************************************
  *  Do not change the following code
 ****************************************************************************************/
-DECLARE_TASKS();																	/* Declare and define stack of tasks */
+DECLARE_TASKS();			
 OSTcb tasks[] = {DECLARE_TCBS()};									/* Define tcbs 											 */
 const int TASK_NUM = sizeof(tasks)/sizeof(OSTcb); /* Compute total number of tasks 		 */
 /***************************************************************************************/
@@ -21,6 +21,7 @@ const int TASK_NUM = sizeof(tasks)/sizeof(OSTcb); /* Compute total number of tas
 OSFlag test1_FLAG = {.flag = 0x00};
 OSFlag test2_FLAG = {.flag = 0x00};
 
+OSTaskTest testFps = {0};
 
 uint8_t keyScan(void){
 	if(!HAL_GPIO_ReadPin(GPIOC,KEY0_Pin))
@@ -64,6 +65,7 @@ void taska(void) {
 		} else if(test1_FLAG.flag == 0x03) {
 			OLED_ShowString(0,0,"3");
 		}
+		testFps.taskaCnt++;
 		OSDelay(10);
 	
 	}
@@ -75,6 +77,7 @@ void taskb(void) {
 		OSFlagPend(&test1_FLAG,0x03,OS_FLAG_GET_CLR);
 //		GPIOA->BSRR = (uint32_t)GPIO_PIN_8 << 16u;
 		OLED_ShowString(10,0,"2");
+		testFps.taskbCnt++;
 //		OSDelay(10);
 //		GPIOA->BSRR = GPIO_PIN_8;
 //		OLED_ShowString(10,0,".");
@@ -94,26 +97,37 @@ void taskc(void) {
 		if(keyScan()==2) {
 			OSFlagPost(&test1_FLAG,0x02,OS_FLAG_SET_ALL);	
 		}
+		testFps.taskcCnt++;
 		OSDelay(10);		
 	}
 }
 
 void taskd(void) {
 	while(1) {
+		testFps.taskdCnt++;
 		OLED_ShowString(30,0,"4");
-		OSDelay(100);
+		OSDelay(500);
 		OLED_ShowString(30,0,".");
-		OSDelay(100);
+		OSDelay(500);
 	}
 }
 
 
 void taske(void) {
 	while(1) {
-		OLED_ShowString(40,0,"5");
-		OSDelay(100);
-		OLED_ShowString(40,0,".");
-		OSDelay(100);
+//		OLED_ShowString(40,0,"5");
+//		OSDelay(100);
+//		OLED_ShowString(40,0,".");
+//		OSDelay(100);
+		testFps.taskaFps = testFps.taskaCnt;
+		testFps.taskbFps = testFps.taskbCnt;
+		testFps.taskcFps = testFps.taskcCnt;
+		testFps.taskdFps = testFps.taskdCnt;
+		testFps.taskaCnt = 0;
+		testFps.taskbCnt = 0;
+		testFps.taskcCnt = 0;
+		testFps.taskdCnt = 0;
+		OSDelay(OS_TICK_HZ);
 	}
 }
 

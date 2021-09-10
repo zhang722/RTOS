@@ -45,5 +45,21 @@ struct taskList
 };
 typedef struct taskList OSList;
 
+
+
+struct taskTest 
+{
+	uint32 taskaCnt;
+	uint32 taskbCnt;
+	uint32 taskcCnt;
+	uint32 taskdCnt;
+	
+	uint32 taskaFps;
+	uint32 taskbFps;
+	uint32 taskcFps;
+	uint32 taskdFps;
+};
+typedef struct taskTest OSTaskTest;
+
 #endif
 

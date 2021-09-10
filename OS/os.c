@@ -11,7 +11,7 @@ uint32 OSPrioTbl = (uint32)0; 				/* Initialize to 0 									 */
 
 
 uint32 taskIdle_STK[IDLE_SIZE]; 			/* Defination of idle task 					 */
-OSTcb taskIdle = {.prio = (uint32)1}; /* Lowest prio 											 */
+OSTcb  taskIdle = {.prio = (uint32)1}; /* Lowest prio 											 */
 
 
 /*
@@ -86,7 +86,7 @@ void OSTimeTick(void)
 		if(OSRdyList[tasks[i].prioLE].tcb->ticks > 0) {
 			OSRdyList[tasks[i].prioLE].tcb->ticks --;
 		}
-		else if(OSRdyList[tasks[i].prioLE].tcb->ticks == 0 &&
+		if(OSRdyList[tasks[i].prioLE].tcb->ticks == 0 &&
 				    OSRdyList[tasks[i].prioLE].tcb->state == OS_READY) {	/* If a task is ready */
 			OSPrioTbl |= OSRdyList[tasks[i].prioLE].tcb->prio ;
 		}	

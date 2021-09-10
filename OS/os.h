@@ -3,11 +3,13 @@
 
 #include "os_types.h"
 
-#define OS_TICK_HZ   100
+#define OS_TICK_HZ   1000
 
-#define MAX_TASK_NUM 32							    /* Max number of tasks 						 		 */
-#define MAX_PRIO     (MAX_TASK_NUM-1)		/* Max prio 											 		 */
-#define IDLE_SIZE    256								/* Default stack size of idle task 		 */
+#define MAX_TASK_NUM 32							    /* Max number of tasks 						 		  */
+#define MAX_PRIO     (MAX_TASK_NUM-1)		/* Max prio 											 		  */
+
+#define IDLE_SIZE    256								/* Default stack size of idle task 		  */
+
 
 enum{
 	OS_SUSPEND = 0,
@@ -43,7 +45,7 @@ void OSSched(void);
 static void OSTaskStkInit(OSTcb *tcb, ptask task, uint32 *stk);
 
 
-/* ---------------About idle task----------------- */	
+/* -----------About idle and statistic task------- */	
 static void OSTaskIdle(void);						
 static void OSIdleInit(void);						
 
