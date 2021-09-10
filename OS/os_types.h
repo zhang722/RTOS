@@ -31,6 +31,7 @@ struct tcb {
   ptask    task;               /* Pointer to task function 		*/
   uint8    state;              /* State of Task 					 		*/
   uint32   prio;               /* Prio of task 						 		*/
+	uint32   prioLE;						 /* Prio in little end			    */
   uint32   ticks;              /* Total ticks to delay 		 		*/
 	OSFlag * pflag;							 /* Pointer to flag				   		*/
 	uint32	 flag;							 /* Flag to wait 								*/

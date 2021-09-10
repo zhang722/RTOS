@@ -3,11 +3,11 @@
 
 #include "os_types.h"
 
-#define OS_TICK_HZ 100
+#define OS_TICK_HZ   100
 
-#define MAX_TASK_NUM 32							/* Max number of tasks 						 		 */
-#define MAX_PRIO (MAX_TASK_NUM-1)		/* Max prio 											 		 */
-#define IDLE_SIZE 256								/* Default stack size of idle task 		 */
+#define MAX_TASK_NUM 32							    /* Max number of tasks 						 		 */
+#define MAX_PRIO     (MAX_TASK_NUM-1)		/* Max prio 											 		 */
+#define IDLE_SIZE    256								/* Default stack size of idle task 		 */
 
 enum{
 	OS_SUSPEND = 0,
@@ -54,5 +54,6 @@ void OSDelay(uint32 ticks);
 void OSInit(void);
 void OSTaskSuspend(OSTcb * ptcb);
 void OSTaskResume(OSTcb * ptcb);
+
 #endif
 

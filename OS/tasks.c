@@ -108,3 +108,12 @@ void taskd(void) {
 }
 
 
+void taske(void) {
+	while(1) {
+		OLED_ShowString(40,0,"5");
+		OSDelay(100);
+		OLED_ShowString(40,0,".");
+		OSDelay(100);
+	}
+}
+

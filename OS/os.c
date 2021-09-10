@@ -3,33 +3,22 @@
 #include "tasks.h"
 
 
-uint8 taskReady = 0;	/* Flag shows if a task is ready */
-
-OSTcb *OSTCBCurPtr;		/* Pointer to current tcb */
-OSTcb *OSTCBNextPtr;  /* Pointer to highest prio ready tcb */
+OSTcb *OSTCBCurPtr;										/* Pointer to current tcb 					 */
+OSTcb *OSTCBNextPtr;  								/* Pointer to highest prio ready tcb */
 
 OSList OSRdyList[MAX_TASK_NUM]; 
-uint32 OSPrioTbl = (uint32)0; /* Initialize to 0 */
+uint32 OSPrioTbl = (uint32)0; 				/* Initialize to 0 									 */
 
 
-uint32 taskIdle_STK[IDLE_SIZE]; /* Defination of idle task */
-OSTcb taskIdle = {.prio = (uint32)1}; /* Lowest prio */
-
-/***********************************************
- *  Do not change the following code
-***********************************************/
-DECLARE_TASKS();																	/* Declare and define stack of tasks */
-OSTcb tasks[] = {DECLARE_TCBS()};									/* Define tcbs 											 */
-const int TASK_NUM = sizeof(tasks)/sizeof(OSTcb); /* Compute total number of tasks 		 */
-/******************************/
+uint32 taskIdle_STK[IDLE_SIZE]; 			/* Defination of idle task 					 */
+OSTcb taskIdle = {.prio = (uint32)1}; /* Lowest prio 											 */
 
 
 /*
  * Callback to distory task
  */
 void OSDistroyTask(void) {
-    // to do...
-    while(1){}
+    while(1){}	/* to do... */
 }
 
 
@@ -76,9 +65,10 @@ void OSDelay(uint32 ticks) {
 	
 	OSTCBCurPtr->ticks = ticks;
 	OSPrioRemove(OSTCBCurPtr->prio);
-	OSUnlock(a);
 	
-	OSSched();											/* Exit critical    					*/
+	OSUnlock(a);										/* Exit critical    					*/
+	
+	OSSched();											
 }
 
 
@@ -92,13 +82,13 @@ void OSTimeTick(void)
 {
 	int a = OSLock();
 	
-	for(int i = 0;i < TASK_NUM;i++) {								/* Check all tasks 						 	 */
-		if(OSRdyList[i].tcb->ticks > 0) {
-			OSRdyList[i].tcb->ticks --;
+	for(int i = 0;i < TASK_NUM;i++) {									/* Check all tasks 		*/
+		if(OSRdyList[tasks[i].prioLE].tcb->ticks > 0) {
+			OSRdyList[tasks[i].prioLE].tcb->ticks --;
 		}
-		else if(OSRdyList[i].tcb->ticks == 0 &&
-				    OSRdyList[i].tcb->state == OS_READY) {				/* If a task is ready 					 */
-			OSPrioTbl |= OSRdyList[i].tcb->prio ;
+		else if(OSRdyList[tasks[i].prioLE].tcb->ticks == 0 &&
+				    OSRdyList[tasks[i].prioLE].tcb->state == OS_READY) {	/* If a task is ready */
+			OSPrioTbl |= OSRdyList[tasks[i].prioLE].tcb->prio ;
 		}	
 	}
 	
@@ -144,12 +134,12 @@ void OSSched(void) {
 	int primask = OSLock();
 	
 	maxPrio = OSPrioGetHighest();
-	OSTCBNextPtr = OSRdyList[maxPrio].tcb;														/* Find correct tcb 									 */
+	OSTCBNextPtr = OSRdyList[maxPrio].tcb;	/* Find correct tcb 		 */
 	
 	OSUnlock(primask);
 	
 	if(OSTCBNextPtr == OSTCBCurPtr) {
-		return;
+		return;																/* Do not need to switch */
 	}	
 	OSContextSwitch();
 }
@@ -171,8 +161,8 @@ static void OSTaskIdle(void) {
  *  Idle task init
  */
 inline static void OSIdleInit(void) {
-	OSRdyList[MAX_PRIO].tcb = &taskIdle;
-	OSTaskStkInit(&taskIdle, OSTaskIdle, &taskIdle_STK[IDLE_SIZE - 1]);
+	OSRdyList[MAX_PRIO].tcb = &taskIdle;									 /* Link OSRdyList with idle task tcb */
+	OSTaskStkInit(&taskIdle, OSTaskIdle, &taskIdle_STK[IDLE_SIZE - 1]);	/* Init idle task stack */
 }
 
 
@@ -206,15 +196,16 @@ void OSTaskResume(OSTcb * ptcb) {
  */
 void OSInit(void) {
 	for(int i = 0;i < TASK_NUM;i++) {
-		tasks[i].prio = OSPrioToBigEnd(tasks[i].prio);
+		tasks[i].prioLE = tasks[i].prio;
+		tasks[i].prio = OSPrioToBigEnd(tasks[i].prio);				/* Convert to BigEnd 						*/
 		OSPrioInsert(tasks[i].prio);
-		OSRdyList[i].tcb = &tasks[i];
-		OSTaskStkInit(&tasks[i],tasks[i].task,tasks[i].stk);
-		tasks[i].state = OS_READY;
+		OSRdyList[tasks[i].prioLE].tcb = &tasks[i];													/* Link OSRdyList with task tcb */
+		OSTaskStkInit(&tasks[i],tasks[i].task,tasks[i].stk);	/* Init task stack 							*/
+		tasks[i].state = OS_READY;														/* Make tasks ready 						*/
 	}
 	OSIdleInit();
-	OSTCBCurPtr = OSRdyList[0].tcb;
-  OSTCBNextPtr = OSRdyList[0].tcb;
+	OSTCBCurPtr = OSRdyList[MAX_PRIO].tcb;
+  OSTCBNextPtr = OSRdyList[MAX_PRIO].tcb;
 	
 	/*systick circle 1ms*/
 	SysTick_Config(72000000 / OS_TICK_HZ);	/*默认时钟源AHB,产生异常请求,立即使能*/
