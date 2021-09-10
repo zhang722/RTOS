@@ -28,7 +28,7 @@
 #include "bmp.h"
 #include "stdio.h"
 #include "string.h"
-#include "tasks.h"
+//#include "tasks.h"
 #include "os.h"
 
 /* USER CODE END Includes */

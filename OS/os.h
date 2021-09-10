@@ -17,7 +17,7 @@ enum{
 	OS_READY
 };
 
-typedef void(*ptask)(void);					/* Rename pointer to function to ptask */
+typedef void(*ptask)(void);	/* Rename pointer to function to ptask */
 
 
 /* ---------------From os_asm.asm----------------- */	

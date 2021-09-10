@@ -87,8 +87,8 @@ void OSTimeTick(void)
 			OSRdyList[tasks[i].prioLE].tcb->ticks --;
 		}
 		if(OSRdyList[tasks[i].prioLE].tcb->ticks == 0 &&
-				    OSRdyList[tasks[i].prioLE].tcb->state == OS_READY) {	/* If a task is ready */
-			OSPrioTbl |= OSRdyList[tasks[i].prioLE].tcb->prio ;
+			 OSRdyList[tasks[i].prioLE].tcb->state == OS_READY) {	/* If a task is ready */
+			OSPrioTbl |= OSRdyList[tasks[i].prioLE].tcb->prio;
 		}	
 	}
 	
@@ -131,12 +131,12 @@ static uint32 OSPrioGetHighest(void) {
  */
 uint32 maxPrio;
 void OSSched(void) {
-	int primask = OSLock();
+	int a = OSLock();
 	
-	maxPrio = OSPrioGetHighest();
+	maxPrio 		 = OSPrioGetHighest();
 	OSTCBNextPtr = OSRdyList[maxPrio].tcb;	/* Find correct tcb 		 */
 	
-	OSUnlock(primask);
+	OSUnlock(a);
 	
 	if(OSTCBNextPtr == OSTCBCurPtr) {
 		return;																/* Do not need to switch */
@@ -170,12 +170,12 @@ inline static void OSIdleInit(void) {
  *  Function to suspend a task
  */
 void OSTaskSuspend(OSTcb * ptcb) {
-	int primask = OSLock();
+	int a = OSLock();
 	
 	OSPrioRemove(ptcb->prio);
 	ptcb->state = OS_SUSPEND;
 	
-	OSUnlock(primask);
+	OSUnlock(a);
 }
 
 
@@ -183,11 +183,11 @@ void OSTaskSuspend(OSTcb * ptcb) {
  *  Function to resume a suspended task
  */
 void OSTaskResume(OSTcb * ptcb) {
-	int primask = OSLock();
+	int a = OSLock();
 	
 	ptcb->state = OS_READY;
 	
-	OSUnlock(primask);
+	OSUnlock(a);
 }
 
 
@@ -197,17 +197,18 @@ void OSTaskResume(OSTcb * ptcb) {
 void OSInit(void) {
 	for(int i = 0;i < TASK_NUM;i++) {
 		tasks[i].prioLE = tasks[i].prio;
-		tasks[i].prio = OSPrioToBigEnd(tasks[i].prio);				/* Convert to BigEnd 						*/
+		tasks[i].prio   = OSPrioToBigEnd(tasks[i].prio);			/* Convert to BigEnd 						*/
 		OSPrioInsert(tasks[i].prio);
-		OSRdyList[tasks[i].prioLE].tcb = &tasks[i];													/* Link OSRdyList with task tcb */
+		OSRdyList[tasks[i].prioLE].tcb = &tasks[i];						/* Link OSRdyList with task tcb */
 		OSTaskStkInit(&tasks[i],tasks[i].task,tasks[i].stk);	/* Init task stack 							*/
 		tasks[i].state = OS_READY;														/* Make tasks ready 						*/
 	}
 	OSIdleInit();
-	OSTCBCurPtr = OSRdyList[MAX_PRIO].tcb;
+	OSTCBCurPtr  = OSRdyList[MAX_PRIO].tcb;
   OSTCBNextPtr = OSRdyList[MAX_PRIO].tcb;
 	
 	/*systick circle 1ms*/
 	SysTick_Config(72000000 / OS_TICK_HZ);	/*默认时钟源AHB,产生异常请求,立即使能*/
+
 }
 
