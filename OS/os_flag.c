@@ -43,6 +43,7 @@ void OSFlagPost(OSFlag * pflag, uint32 flag, uint32 opt)
 void OSFlagPend(OSFlag * pflag, uint32 flag, uint32 opt) 
 {
 	int a = OSLock();
+	
 	OSTCBCurPtr->pflag = pflag;											/* Save 								*/
 	OSTCBCurPtr->flag = flag;
 	
@@ -50,15 +51,14 @@ void OSFlagPend(OSFlag * pflag, uint32 flag, uint32 opt)
 		if(opt == OS_FLAG_GET_CLR) {			
 			pflag->flag &= ~(OSTCBCurPtr->pflag->flag);	/* Clear bits after get */
 		} 	
-		
-		OSUnlock(a);
-		return;
-	} else {																				/* Not match 						*/
+	} 
+	if((pflag->flag & flag) != flag) {							/* Not match 						*/
 		OSPrioRemove(OSTCBCurPtr->prio);							/* Block task 					*/
 		OSTCBCurPtr->state = OS_BLOCK;
-		OSSched();																		/* Switch task 					*/
+																			
 	}
 
 	OSUnlock(a);
+	OSSched();																			/* Switch task 					*/
 }
 
