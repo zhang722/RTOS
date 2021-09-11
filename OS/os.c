@@ -34,6 +34,26 @@ static void OSTaskStkInit(OSTcb * tcb, ptask task, uint32 * stk) {
     pstk = stk;
     pstk = (uint32 *)((uint32)(pstk) & 0xFFFFFFF8uL);
 
+#if (__FPU_PRESENT==1)&&(__FPU_USED==1)     	/* Registers stacked as if auto-saved on exception        */
+	*(--pstk) = (uint32)0x00000000u; //No Name Register  
+	*(--pstk) = (uint32)0x00001000u; //FPSCR
+	*(--pstk) = (uint32)0x00000015u; //s15
+	*(--pstk) = (uint32)0x00000014u; //s14
+	*(--pstk) = (uint32)0x00000013u; //s13
+	*(--pstk) = (uint32)0x00000012u; //s12
+	*(--pstk) = (uint32)0x00000011u; //s11
+	*(--pstk) = (uint32)0x00000010u; //s10
+	*(--pstk) = (uint32)0x00000009u; //s9
+	*(--pstk) = (uint32)0x00000008u; //s8
+	*(--pstk) = (uint32)0x00000007u; //s7
+	*(--pstk) = (uint32)0x00000006u; //s6
+	*(--pstk) = (uint32)0x00000005u; //s5
+	*(--pstk) = (uint32)0x00000004u; //s4
+	*(--pstk) = (uint32)0x00000003u; //s3
+	*(--pstk) = (uint32)0x00000002u; //s2
+	*(--pstk) = (uint32)0x00000001u; //s1
+	*(--pstk) = (uint32)0x00000000u; //s0
+#endif
 
     *(--pstk) = (uint32)0x01000000uL; // xPSR
     *(--pstk) = (uint32)task;         // Entry Point
@@ -43,6 +63,25 @@ static void OSTaskStkInit(OSTcb * tcb, ptask task, uint32 * stk) {
     *(--pstk) = (uint32)0x02020202uL; // R2
     *(--pstk) = (uint32)0x01010101uL; // R1
     *(--pstk) = (uint32)0x00000000u;  // R0
+
+#if (__FPU_PRESENT==1)&&(__FPU_USED==1)
+	*(--pstk) = (uint32)0x00000031u; //s31
+	*(--pstk) = (uint32)0x00000030u; //s30
+	*(--pstk) = (uint32)0x00000029u; //s29
+	*(--pstk) = (uint32)0x00000028u; //s28
+	*(--pstk) = (uint32)0x00000027u; //s27
+	*(--pstk) = (uint32)0x00000026u; //s26	
+	*(--pstk) = (uint32)0x00000025u; //s25
+	*(--pstk) = (uint32)0x00000024u; //s24
+	*(--pstk) = (uint32)0x00000023u; //s23
+	*(--pstk) = (uint32)0x00000022u; //s22
+	*(--pstk) = (uint32)0x00000021u; //s21
+	*(--pstk) = (uint32)0x00000020u; //s20
+	*(--pstk) = (uint32)0x00000019u; //s19
+	*(--pstk) = (uint32)0x00000018u; //s18
+	*(--pstk) = (uint32)0x00000017u; //s17
+	*(--pstk) = (uint32)0x00000016u; //s16
+#endif
 
     *(--pstk) = (uint32)0x11111111uL; // R11
     *(--pstk) = (uint32)0x10101010uL; // R10

@@ -60,8 +60,8 @@ PendSV_Handler
 	MRS   R0, PSP   ;将PSP协寄存器移动到R0
 	CBZ   R0, OSPendSVHandler_nosave    ;判断并分支，若R0=0，则说明是第一次切换，跳转到相应函数
 
-	;判断是否用到FPU，即VFP
-	;TST   R14, #0x20 ;TST即按位与
+	;如果是f4，则取消注释
+	;TST   R14, #0x10 ;TST即按位与
 	;IT    EQ          ;IT即If-Then,EQ即IT块中的语句需要加上的条件
 	;VSTMDBEQ  R0!, {S16-S31}  ;VSTM即将VFP中的寄存器批量移动到Registers Bank
 	;,DB代表每次移动前将待写入地址减4,!代表将减4后的地址重新写入R0,EQ是IT块中要加上的条件
@@ -83,6 +83,7 @@ OSPendSVHandler_nosave
 	LDM   R0, {R4-R11}   ; 装载下文的Callee Saved Registers
 	ADDS  R0, R0, #0x20
 
+	;如果是f4，则取消注释
 	;TST   R14, #0x10   ; 根据EXC_RETURN的bit4, 判定是否开启了FPU
 	;IT    EQ    ; 若开启了, 则装载S16-S31
 	;VLDMIAEQ R0!, {S16-S31} 
