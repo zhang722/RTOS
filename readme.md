@@ -46,10 +46,10 @@ DECLARE_TCB(taskb)
 ```
 这样就创建了两个任务：taska和taskb。
 如果想要创建新的名为test的任务，需要添加四处：
-1. `#define test_SIZE 256` 
-2. `#define test_PRIO 3`
-3. `DECLARE_A_TASK(test);\`
-4. `DECLARE_TCB(taska),\`
+a. `#define test_SIZE 256` 
+b. `#define test_PRIO 3`
+c. `DECLARE_A_TASK(test);\`
+d. `DECLARE_TCB(taska),\`
 
 2. 在tasks.c里添加任务入口函数：
 ```
